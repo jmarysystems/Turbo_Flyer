@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "turboflyer",
+  "private_key_id": "f65b744194458587ad26fed7dad67feeaa956b03",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDO4F8ADYJsu45A\nhKGSbm38OFdx/sjUd0eyBM956xLpgXjPF1rT9AMIbPoAYzS4WFrV/WOd5WglNUa3\nRa4Nif+u2GD0NpgQ2Jnyx7YK89SPAJYtZgcI6B7CFCm4s/yl8x7QezE70NkU4Ib8\nzeTUe1e3O74dTCblgEbv/c+FzkYZsAe6Np+62n6ccNXWevOpyGc5f3BeAaBloMOV\n4LTuyev+WiafDzqZchvFkVYYUikTBZJQLVlm3/x5LokXE93i21N4AtiBeme59QMx\nR8lfA+qLtpWTQYUOqiYbuZOppi6CVKgAIP9hxqbsJ+rOxXPb7DLGkOMc3ekffy56\nFGKP/d/BAgMBAAECggEAJy3rmAM2+PhBXdswjV6wIkUaXIrEBqcLcz3BfGXGiGYe\nltvltf//xgv7gfDH5oTHOUE6qUft5CQVnzaJWuOQgpDUtdOUE5at+0KS6bqZfja+\nel0ZBnkNgDSY3TPrLJOheZrnLVyljDRkpEKrLImqiFd+byaBtFPJu4BeWclB0fHD\nLcrV9LTHDUmHYbGyOVKtnkAnNiCLXCeIAq4XFHhkhj+WmCqyVGJuiMSWVxJnFHJF\n7B0bzkFMwmv2NB4cAW+kY9rgGA/bX/qWsdfedg5dRMqKpaToe3iBJEDEOuudwQYS\nvTK3zPqraXjK1fWZIjdSx6Twa+Zfrixqvs5zEh0glQKBgQDmWUHLRjV87uuxfdPw\nGFj2OTZLFEYYMMkzvRQfGlLSucfjioUzoRMu3w0zEpVcfBZhmgI1fRZg6/dsrKa4\nfttxoHhBpV/+l69fk0G3zkDuSejziXlraYBx4VvfYgLlJEtrAk0xTOrf1E9vzf/U\nkFe+Zvu5OdUG0doZGqUu8227HQKBgQDl6fjXdK+nhEmuFF6j7T3w7tdW5awiovmK\nCVGgHZ/2m9dV1tDwLAxNBFFSyGw/c5xgQDXA+ujmy2GouEgW77BKoWYX48g1Zdzo\nsvPFxzeGEv9Q8dwlSnOjrlHqwjAn7NdS8R90Yw0DZ5nFstraugP3kYSW7sJqOFDi\n4G2Zukpx9QKBgFfpcMbXwMoxlRpkX2KeqDUwmJwG3MmWtPNeEjPcpAdwh+07jKKr\nstqMnkkDqqVlZlVRpc4sM0JCTGfZbLe1EqNHDx5es0hDM9dSKB6yRO2sn49yxDhO\nR4su6xVSHrC9LVtlwXgzVuCd8sNE54KEpDgyrZd/juHPbWFvXeORXCuxAoGAFsrg\nKXPe6gt6RnCshTHCvzzeSjYQn4pqlJ2h4u6s6gS/Dzpxki27tnLkIQHPgWbTrNMQ\nwSXequqkrtY+B1ARuQRRG7MwKOMFSGhdNFEwlvERMJQZj/TWi/Z/FnfT0FFxcz6G\nMMKVCq5dlzTI74AbXpKlg1T+HwugMS2wj9nhAXUCgYBCRXwPL6B2OD1PlJd0DxfD\nOg1OI1d+ZtQjRUaAYBlpZWcsr/JeWZgs10wh0iEHqKLpgL4+fGF6lBvmUyXSv654\nxb5ASWseoUDKZWn0kuQOb6KlKdLN5fm4WJsaNeP8YYbwbdUrYXn2tZSif2hFPL7X\nxUbWesSs3JyKgVBQK9XA0Q==\n-----END PRIVATE KEY-----\n",
+  "client_email": "turbo-flyer-android@turboflyer.iam.gserviceaccount.com",
+  "client_id": "109379542707932664505",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/turbo-flyer-android%40turboflyer.iam.gserviceaccount.com"
+}
