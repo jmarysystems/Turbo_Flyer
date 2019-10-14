@@ -47,10 +47,11 @@
     <!-- Content below header and above footer -->
 
     <ScrollView
+        android:id="@+id/scrollcentro"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/header"
-        android:layout_above="@id/footer">
+        android:layout_above="@id/footer"
+        android:layout_below="@id/header">
 
         <RelativeLayout
             android:id="@+id/content"

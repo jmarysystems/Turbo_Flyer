@@ -54,6 +54,7 @@ public class OO8_Conversa extends AppCompatActivity {
     public android.app.Activity Activity;
 
     View focusView = null;
+    private ScrollView scrollView22;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,8 @@ public class OO8_Conversa extends AppCompatActivity {
         actionbar.hide();
 
         Activity = this;
+
+        scrollView22 = (ScrollView) findViewById(R.id.scrollcentro);
 
         preencher_layout_topo();
         linha_do_menu_add();
@@ -743,6 +746,16 @@ public class OO8_Conversa extends AppCompatActivity {
             mensagemLayout.addView(mensagemLayout2);
 
             relative_layout_center.addView( mensagemLayout );
+
+            try{
+
+                scrollView22.post(
+                        new Runnable() { public void run() {
+
+                            scrollView22.fullScroll(View.FOCUS_DOWN);
+                        }
+                        });
+            } catch(Exception e){ }
         }
         catch ( Exception e ) {
             e.printStackTrace();
@@ -802,6 +815,16 @@ public class OO8_Conversa extends AppCompatActivity {
             mensagemLayout.addView(mensagemLayout2);
 
             relative_layout_center.addView( mensagemLayout );
+
+            try{
+
+                scrollView22.post(
+                        new Runnable() { public void run() {
+
+                            scrollView22.fullScroll(View.FOCUS_DOWN);
+                        }
+                        });
+            } catch(Exception e){ }
 
         }
         catch ( Exception e ) {
