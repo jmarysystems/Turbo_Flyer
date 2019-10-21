@@ -756,6 +756,8 @@ public class OO8_Conversa extends AppCompatActivity {
                         }
                         });
             } catch(Exception e){ }
+
+
         }
         catch ( Exception e ) {
             e.printStackTrace();
@@ -1496,6 +1498,8 @@ class EnviarMensagem extends AsyncTask<String, String, String> {
             }
 
             Arquivo_Ou_Pasta.deletar( new File( this.pasta ) );
+
+            //OO11_Notificacoes OO11_Notificacoes = new OO11_Notificacoes("Nova Mensagem de: "+this.nome_destinatario, this.msg_a_enviar,this.OO8_Conversa23.Activity);
         }catch(Exception e ){}
     }
 }

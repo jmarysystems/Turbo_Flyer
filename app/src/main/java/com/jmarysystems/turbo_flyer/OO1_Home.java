@@ -20,6 +20,7 @@ public class OO1_Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_oo1__home);
+        startService(new Intent(getBaseContext(), OO12_Ler_Mensagens_Auto.class));
 
         ActionBar actionbar = getSupportActionBar();
         //actionbar.setDisplayHomeAsUpEnabled(true);

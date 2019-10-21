@@ -174,6 +174,7 @@ public class OO4_Controle_Mensagem_Contatos extends AppCompatActivity {
         });
         bt_novo_Contato.setText("Novo");
         LinearLayout3.addView(bt_novo_Contato);
+
 //PREENCHER Layout 3////////////////////////////////////////////////////////////////////////////////
 
 //PREENCHER Layout 2 Nome e Email///////////////////////////////////////////////////////////////////
@@ -186,6 +187,12 @@ public class OO4_Controle_Mensagem_Contatos extends AppCompatActivity {
 
         TextView textView = new TextView(Activity);
         textView.setText("    Meus Contatos");
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                abrir_Activity(OO13_Resete.class, nome, de_email_remetente);
+            }
+        });
         textView.setTextColor(parseColor("#ffffff"));
         LinearLayout2.addView(textView);
 //PREENCHER Layout 2////////////////////////////////////////////////////////////////////////////////
