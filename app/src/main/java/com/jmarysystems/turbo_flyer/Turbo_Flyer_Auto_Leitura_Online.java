@@ -532,7 +532,7 @@ class OO12_Ler_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
             else{
 
                 Thread.sleep( 1000 );
-                System.out.println("\nTurbo_Flyer_Auto_Leitura_Online - Para baixar as Mensagens - jsonDeResposta == null - " + proxima_mensagem_a_ler);
+                //System.out.println("\nTurbo_Flyer_Auto_Leitura_Online - Para baixar as Mensagens - jsonDeResposta == null - " + proxima_mensagem_a_ler);
             }
         } catch( Exception e ){}
 
@@ -609,7 +609,7 @@ class OO12_Ler_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
             if( destinatario_da_mensagem.equalsIgnoreCase(email_Usuario_Logado) ){
 
                 if( remetente_da_mensagem.equalsIgnoreCase(email_da_lista_dos_contatos) ){
-
+/*
                     System.out.println("\n** Início - Turbo_Flyer_Auto_Leitura_Online - *****************************************************************");
                     System.out.println("\n A mensagem é para mim: " + email_Usuario_Logado );
                     System.out.println("\n email_Usuario_Logado: " + email_Usuario_Logado );
@@ -617,7 +617,7 @@ class OO12_Ler_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
                     System.out.println("\n remetente_da_mensagem: " + remetente_da_mensagem );
                     System.out.println("\n destinatario_da_mensagem: " + destinatario_da_mensagem );
                     System.out.println("\n** Fim - Turbo_Flyer_Auto_Leitura_Online - *****************************************************************");
-
+*/
                     try {
 
                         String datax = data.trim().replace(" ", "_");
@@ -639,7 +639,7 @@ class OO12_Ler_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
             else if( remetente_da_mensagem.equalsIgnoreCase(email_Usuario_Logado) ){
 
                 if( email_da_lista_dos_contatos.equalsIgnoreCase(destinatario_da_mensagem) ){
-
+/*
                     System.out.println("\n** Início - Turbo_Flyer_Auto_Leitura_Online - *****************************************************************");
                     System.out.println("\n Eu enviei a mensagemm: " + email_Usuario_Logado );
                     System.out.println("\n email_Usuario_Logado: " + email_Usuario_Logado );
@@ -647,7 +647,7 @@ class OO12_Ler_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
                     System.out.println("\n remetente_da_mensagem: " + remetente_da_mensagem );
                     System.out.println("\n destinatario_da_mensagem: " + destinatario_da_mensagem );
                     System.out.println("\n** Fim - Turbo_Flyer_Auto_Leitura_Online - *****************************************************************");
-
+*/
                     try {
 
                         String datax = data.trim().replace(" ", "_");

@@ -1206,16 +1206,17 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                             contadorX = contador;
 
                             String nome_Da_pasta_Da_Mensagem_Data = pasta_do_remetente_destinatario[r].getName().trim().toUpperCase();
-                            String endereco_Da_pasta_Da_Mensagem_Data = internalStorageDir + s+"00_Externo"+s+"MENSAGENS_RECEBIDAS"+s + email_REMETENTE + s + email_DESTINATARIO + s + pasta_do_remetente_destinatario[r].getName().trim();
-                            //System.out.println( "\nnome_Da_pasta_Da_Mensagem_Data - " + nome_Da_pasta_Da_Mensagem_Data);
-                            //System.out.println( "\nendereco_Da_pasta_Da_Mensagem_Data - " + endereco_Da_pasta_Da_Mensagem_Data);
-                            File data_diretorio2 = new File( endereco_Da_pasta_Da_Mensagem_Data );
+                            if( !nome_Da_pasta_Da_Mensagem_Data.equals("MENSAGENS_TXT") ){
+                            String endereco_Da_pasta_Da_Mensagem_Data = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + pasta_do_remetente_destinatario[r].getName().trim();
+                            System.out.println("\nnome_Da_pasta_Da_Mensagem_Data - " + nome_Da_pasta_Da_Mensagem_Data);
+                            System.out.println("\nendereco_Da_pasta_Da_Mensagem_Data - " + endereco_Da_pasta_Da_Mensagem_Data);
+                            File data_diretorio2 = new File(endereco_Da_pasta_Da_Mensagem_Data);
                             File[] data_lista_pasta_Da_Mensagem = data_diretorio2.listFiles();
-                            for (int i=0; i < data_lista_pasta_Da_Mensagem.length; i++) {
+                            for (int i = 0; i < data_lista_pasta_Da_Mensagem.length; i++) {
 
                                 String subnome_Da_pasta_Da_Mensagem = data_lista_pasta_Da_Mensagem[i].getName().trim().toUpperCase();
                                 String endereco_recebido_e_nao_lido = endereco_Da_pasta_Da_Mensagem_Data + s + subnome_Da_pasta_Da_Mensagem;
-                                if ( !subnome_Da_pasta_Da_Mensagem.equals("ENVIADO") ) {
+                                if (!subnome_Da_pasta_Da_Mensagem.equals("ENVIADO")) {
                                     //System.out.println( "\nsubnome_Da_pasta_Da_Mensagem - " + subnome_Da_pasta_Da_Mensagem);
                                     //System.out.println( "\nendereco_recebido_e_nao_lido - " + endereco_recebido_e_nao_lido);
                                     File[] data_lista_arquivos_Da_Mensagem = data_lista_pasta_Da_Mensagem[i].listFiles();
@@ -1226,12 +1227,12 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                                         //System.out.println( "\nnome_do_arquivo - " + nome_do_arquivo);
                                         //System.out.println( "\nendereco_do_arquivo - " + endereco_do_arquivo);
 
-                                        String str_para_extencao = new File( endereco_recebido_e_nao_lido ).getPath() + s + new File( data_lista_arquivos_Da_Mensagem[x].getName() ).getPath();
-                                        String extencao_do_arquivo = str_para_extencao.substring( str_para_extencao.lastIndexOf('.') + 1 );
+                                        String str_para_extencao = new File(endereco_recebido_e_nao_lido).getPath() + s + new File(data_lista_arquivos_Da_Mensagem[x].getName()).getPath();
+                                        String extencao_do_arquivo = str_para_extencao.substring(str_para_extencao.lastIndexOf('.') + 1);
                                         //System.out.println( "\nstr_para_extencao - " + str_para_extencao);
                                         //System.out.println( "\nextencao_do_arquivo - " + extencao_do_arquivo);
 
-                                        if( extencao_do_arquivo.equalsIgnoreCase( "html" ) ){
+                                        if (extencao_do_arquivo.equalsIgnoreCase("html")) {
 
                                             //System.out.println( "\nstr_para_extencao - " + str_para_extencao);
                                             //System.out.println( "\nextencao_do_arquivo - " + extencao_do_arquivo);
@@ -1241,23 +1242,27 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                                                     data_lista_arquivos_Da_Mensagem[x],
                                                     nome_Da_pasta_Da_Mensagem_Data,
                                                     email_remetente,
-                                                    email_destinatario );
+                                                    email_destinatario);
 
                                             try {
 
                                                 boolean nl = true;
-                                                String endereco_txt_mensagens = internalStorageDir + s+"00_Externo"+s+"MENSAGENS_RECEBIDAS"+s + email_REMETENTE + s + email_DESTINATARIO + s + "MENSAGENS_TXT" + s + "txt" + ".txt";
+                                                String endereco_txt_mensagens = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "MENSAGENS_TXT" + s + "txt" + ".txt";
 
-                                                BufferedWriter out = new BufferedWriter(new FileWriter(endereco_txt_mensagens ,true));
+                                                BufferedWriter out = new BufferedWriter(new FileWriter(endereco_txt_mensagens, true));
                                                 out.write(nome_Da_pasta_Da_Mensagem_Data);
-                                                if(nl) { out.newLine(); }
+                                                if (nl) {
+                                                    out.newLine();
+                                                }
 
                                                 out.close();
-                                            } catch (Exception e) {}
+                                            } catch (Exception e) {
+                                            }
                                         }
                                     }
                                 }
                             }
+                        }
                         }
 
 
@@ -1301,8 +1306,8 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                                         contadorX = contador;
                                     }
                                     String endereco_Da_pasta_Da_Mensagem_Data = internalStorageDir + s+"00_Externo"+s+"MENSAGENS_RECEBIDAS"+s + email_REMETENTE + s + email_DESTINATARIO + s + pasta_do_remetente_destinatario[r].getName().trim();
-                                    //System.out.println( "\nnome_Da_pasta_Da_Mensagem_Data - " + nome_Da_pasta_Da_Mensagem_Data);
-                                    //System.out.println( "\nendereco_Da_pasta_Da_Mensagem_Data - " + endereco_Da_pasta_Da_Mensagem_Data);
+                                    System.out.println( "\nnome_Da_pasta_Da_Mensagem_Data - " + nome_Da_pasta_Da_Mensagem_Data);
+                                    System.out.println( "\nendereco_Da_pasta_Da_Mensagem_Data - " + endereco_Da_pasta_Da_Mensagem_Data);
                                     File data_diretorio2 = new File( endereco_Da_pasta_Da_Mensagem_Data );
                                     File[] data_lista_pasta_Da_Mensagem = data_diretorio2.listFiles();
                                     for (int i=0; i < data_lista_pasta_Da_Mensagem.length; i++) {
@@ -1585,7 +1590,7 @@ class LerMensagem extends AsyncTask<String, String, Void> {
 
                         //Transformar unicode para utf
                         if (Character.charCount(codePointAt) == 1) {
-
+                            /*
                             System.out.println( "\n\n filtrarTipoArquivos__iniciais_2 - Início - Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
                             System.out.println( " String Completa - " + sb.toString() );
                             System.out.println( " String parte_01[i] - " + parte_01[i] );
@@ -1593,6 +1598,7 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                             System.out.println( " char[] charPair - " + charPair );
                             System.out.println( " Symbol - " + symbol );
                             System.out.println( " filtrarTipoArquivos__iniciais_2 - Fim - Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
+                            */
                         } else {
                             //return new String(Character.toChars(codePoint));
                         }
