@@ -33,7 +33,7 @@
         android:usesCleartextTraffic="true">
         <activity android:name=".OO13_Resete"></activity>
 
-        <service android:name=".OO12_Ler_Mensagens_Auto" />
+        <service android:name=".OO12_Servico" />
 
         <activity android:name=".OO9_Abrir_Contatos" />
         <activity android:name=".OO8_Conversa" />

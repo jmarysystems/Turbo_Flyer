@@ -6,11 +6,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -28,21 +27,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.Properties;
-
-import jm.Arquivo_Ou_Pasta;
+import java.util.List;
 
 import static android.graphics.Color.parseColor;
 
@@ -81,15 +71,28 @@ public class OO8_Conversa extends AppCompatActivity {
         //mensagem_direita("mensagem_direita");
         //mensagem_esquerda("mensagem_esquerda");
 
-        _ler_da_mensagens(true);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                _ler_da_mensagens(0,true);
+            }
+        }, 1);
     }
 
-    public void _ler_da_mensagens(boolean executarUmaVez){
+    public void _ler_da_mensagens(int contador, boolean executarUmaVez){
         try{
 
             String ip = "http://192.168.0.100:8000/";
 
-            LerMensagem LerMensagem = new LerMensagem(this, executarUmaVez, ip, nome, de_email_remetente, para_email_destinatario);
+            LerMensagem LerMensagem = new LerMensagem(
+                    this,
+                    Activity,
+                    de_email_remetente,
+                    para_email_destinatario,
+                    contador, executarUmaVez);
             LerMensagem.execute(ip);
 
         } catch( Exception e ){
@@ -99,17 +102,29 @@ public class OO8_Conversa extends AppCompatActivity {
         }
     }
 
-    public void _envio_da_mensagem(String msg_a_enviar, String pasta, String file, String segundo){
+    public void _envio_da_mensagem(String msg_a_enviar){
         try{
 
-            EnviarMensagem EnviarMensagem = new EnviarMensagem(this, msg_a_enviar, nome, de_email_remetente, para_email_destinatario, pasta, file, segundo);
-            EnviarMensagem.execute(msg_a_enviar);
+            ////////dd.MM.yyyy HH:mm:ss/////////////EEEE, d MMMM yyyy HH:mm:ss
+            Calendar calendar = Calendar.getInstance();
+            java.util.Date now = calendar.getTime();
+            java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
 
-        } catch( Exception e ){
-            e.printStackTrace();
-            //JOPM JOptionPaneMod = new JOPM( 2, "inicio(), \n"
-            //+ e.getMessage() + "\n", "Home" );
-        }
+            String dataCadastro = "";
+            //DateFormat dfmt = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            DateFormat dfmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            try{ dataCadastro = dfmt.format(currentTimestamp);  }catch(Exception e){}
+            ////////dd.MM.yyyy HH:mm:ss/////////////EEEE, d MMMM yyyy HH:mm:ss
+
+            Turbo_Flyer_Auto_Enviar_Offline Turbo_Flyer_Auto_Enviar_Offline = new Turbo_Flyer_Auto_Enviar_Offline(
+                    Activity,
+                    msg_a_enviar,
+                    dataCadastro,
+                    de_email_remetente,
+                    para_email_destinatario
+            );
+
+        } catch( Exception e ){ e.printStackTrace(); }
     }
 
     RelativeLayout relative_layout_topo;
@@ -265,9 +280,7 @@ public class OO8_Conversa extends AppCompatActivity {
 
                         mensagem_direita(msg_a_enviar, nome_criar_pasta_mensagem);
 
-                        //_envio_da_mensagem(msg_a_enviar);
-
-                        criar_arquivo( msg_a_enviar, de_email_remetente, para_email_destinatario, "ENVIAR", "");
+                        _envio_da_mensagem(msg_a_enviar);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -336,355 +349,6 @@ public class OO8_Conversa extends AppCompatActivity {
         //currentFocus.clearFocus();
 //FINALIZAR/////////////////////////////////////////////////////////////////////////////////////////
 }
-
-    public void mostrar_mensagens_iniciais(String email_remetente, String email_destinatario) { try {
-
-        String s = System.getProperty("file.separator");
-        File internalStorageDir = Activity.getFilesDir();
-
-        String nome_email_destinatario = email_destinatario.trim().toUpperCase().replace("@", "_");
-        String email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
-        String arquivo_properties2 = email_remetente.trim().toUpperCase().replace("@", "_");
-        String email_REMETENTE = arquivo_properties2.trim().toUpperCase().replace(".", "_");
-
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s, "00_Externo" );
-        if ( new File(internalStorageDir + s + "00_Externo").exists() == true ) {
-
-            System.out.println("00_Externo -- Existe --- " + internalStorageDir + s + "00_Externo" );
-        }
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo", "MENSAGENS_RECEBIDAS" );
-        if ( new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS").exists() == true ) {
-
-            System.out.println("MENSAGENS_RECEBIDAS -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" );
-        }
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS", email_REMETENTE );
-        if ( new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE).exists() == true ) {
-
-            System.out.println(email_REMETENTE+" -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE );
-        }
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE, email_DESTINATARIO );
-        if ( new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO).exists() == true ) {
-
-            System.out.println(email_DESTINATARIO+" -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO );
-        }
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO, "NAO_ENVIADO" );
-        if ( new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO").exists() == true ) {
-
-            System.out.println("NAO_ENVIADO -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO" );
-        }
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO, "ENVIADO" );
-        if ( new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO").exists() == true ) {
-
-            System.out.println("ENVIADO -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO" );
-        }
-
-        String destino = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO;
-        File diretorio = new File(destino);
-
-        if ( diretorio.exists() == true ) {
-            System.out.println("******************************************************************** -- " + diretorio.getPath());
-
-            File pasta_da_msg_recebida[] = diretorio.listFiles();
-
-            //File[] pasta_da_msg_recebida = null;
-            try {
-
-                //pasta_da_msg_recebida = diretorio.listFiles();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            if (pasta_da_msg_recebida != null) {
-
-                System.out.println("if (pasta_da_msg_recebida != null) { -- " + diretorio.getPath());
-
-                for (int j = 0; j < pasta_da_msg_recebida.length; j++) {
-
-                    if (pasta_da_msg_recebida[j].isDirectory()) {
-
-                        String namePasta = pasta_da_msg_recebida[j].getName().trim().toUpperCase();
-
-                        if (namePasta.equalsIgnoreCase("EMOJIS")) {
-
-                        } else if (namePasta.equalsIgnoreCase("NAO_ENVIADO")) {
-                            System.out.println("namePasta - " + namePasta);
-                            System.out.println("pasta_da_msg_recebida[j] - " + pasta_da_msg_recebida[j].getPath());
-                        /*
-                        Arquivo_Ou_Pasta.criarPasta( System.getProperty("user.dir") + "\\00_Externo", "MENSAGENS_RECEBIDAS" );
-                        Arquivo_Ou_Pasta.criarPasta( System.getProperty("user.dir") + "\\00_Externo\\MENSAGENS_RECEBIDAS", namePasta );
-                        String destino2 = System.getProperty("user.dir") + "\\00_Externo\\MENSAGENS_RECEBIDAS\\" + namePasta; // NAO_ENVIADO\\
-
-                        File[] listaDosArquivos2 = new File( destino2 ).listFiles();
-                        if ( listaDosArquivos2 != null ) {
-
-                            Arquivo_Ou_Pasta.copiarArquivoNovoNome( listaDosArquivos2[j], destino2, "eu" + ".html" );
-                            Arquivo_Ou_Pasta.deletar(listaDosArquivos2[j]);
-                        }
-
-                        Arquivo_Ou_Pasta.deletar( pasta_da_msg_recebida[j] );
-                        */
-                        } else {
-                            System.out.println("namePasta - " + namePasta);
-                            System.out.println("pasta_da_msg_recebida[j] - " + pasta_da_msg_recebida[j].getPath());
-
-                            String msg_local = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + pasta_da_msg_recebida[j].getName().trim();
-
-                            File[] listaDosArquivos = new File(msg_local).listFiles();
-                            for (int i=0; i < listaDosArquivos.length; i++) {
-
-                                System.out.println("\n**************************************************************" );
-                                System.out.println("Pasta enviada - " + listaDosArquivos[i].getPath());
-                                System.out.println("**************************************************************\n" );
-
-                                mostrar_arquivo_html__iniciais_1( listaDosArquivos[i].getPath() );
-                            }
-                        /*
-                        File[] listaDosArquivos2 = pasta_da_msg_recebida[j].listFiles();
-                        for (int f=0; f < listaDosArquivos2.length; f++) {
-
-                            File fileS = listaDosArquivos2[f];
-                            String nome_Arquivo = fileS.getName().trim().toUpperCase();
-                            System.out.println( "nome_Arquivo - " + nome_Arquivo );
-
-                            if ( nome_Arquivo.equalsIgnoreCase( "EU.HTML" ) ) {
-                                System.out.println( "nome_Arquivo - " + "EU" );
-
-                                String ff = pasta_da_msg_recebida[j].getPath() + System.getProperty("file.separator") + fileS.getPath();
-                                String extencao = ff.substring( ff.lastIndexOf('.') + 1 );
-
-                                if ( extencao.equalsIgnoreCase( "html" ) ) {
-
-                                    StringBuilder sb = new StringBuilder();
-                                    BufferedReader bR = new BufferedReader( new FileReader( fileS ) );
-                                    String linha;
-		                    while( (linha = bR.readLine()) != null){
-                                        sb.append( linha );
-		                    }
-
-                                    System.out.println( sb.toString() );
-
-                                    String list_str_1[] = null; try { list_str_1 = pasta_da_msg_recebida[j].getName().split("_"); } catch (Exception e) {}
-                                    String nome_data_hora_mensagem = list_str_1[1]+"/"+list_str_1[2]+"/"+list_str_1[2]+" " +
-                                                     list_str_1[3]+"/"+list_str_1[4]+"/"+list_str_1[5];
-
-                                    mensagem2("      Você - " + nome_data_hora_mensagem, sb.toString(), true, false);
-                                }
-                            }
-                        }
-                        */
-                        }
-                    }
-                }
-            } else {
-
-                System.out.println("if (pasta_da_msg_recebida == null) { -- " + diretorio.getPath());
-            }
-       }
-
-    } catch( Exception e ){ e.printStackTrace();} }
-
-    private void mostrar_arquivo_html__iniciais_1( String pasta_criada_local ){
-        try {
-            System.out.println("mostrar_arquivo_html__iniciais_1( String pasta_criada_local ){ -- " );
-
-            File diretorio = new File( pasta_criada_local );
-
-            if ( diretorio.isDirectory()  ) {
-                System.out.println("if ( diretorio.isDirectory()  ) { -- " + diretorio.getPath());
-
-                File[] listaDosArquivos = diretorio.listFiles();
-
-                if ( listaDosArquivos != null ) {
-                    System.out.println("if ( listaDosArquivos != null ) { -- " + diretorio.getPath());
-
-                    for (int i=0; i < listaDosArquivos.length; i++) {
-
-                        File f = new File( listaDosArquivos[i].getName() );
-                        System.out.println("File f = new File( listaDosArquivos[i].getName() ); -- " + f.getPath());
-
-                        filtrarTipoArquivos__iniciais_2( diretorio, f );
-                    }
-                }
-            }
-            else{ /*System.out.println( pasta );*/ }
-
-        } catch( Exception e ){}
-    }
-
-    private void filtrarTipoArquivos__iniciais_2( File diretorio, File arquivo ){
-
-        try{
-
-            String f = diretorio.getPath() + System.getProperty("file.separator") + arquivo.getPath();
-
-            System.out.println( "filtrarTipoArquivos - HTML - " + f );
-
-            //mensagemHTML( diretorio.getName(), f, false, true );
-
-            File file = new File( f );
-
-            if ( file.isFile() == true ) {
-
-                String extencao = f.substring( f.lastIndexOf('.') + 1 );
-
-                if( extencao.equalsIgnoreCase( "html" ) ){
-
-                    System.out.println( "filtrarTipoArquivos - HTML - " + arquivo.getName() );
-
-                    StringBuilder sb = new StringBuilder();
-                    BufferedReader bR = new BufferedReader( new FileReader( file ) );
-                    String linha;
-                    while( (linha = bR.readLine()) != null){
-
-                        //System.out.println( linha );
-                        sb.append( linha );
-                    }
-
-                    System.out.println("\n**************************************************************" );
-                    System.out.println("Texto - " + sb.toString());
-                    System.out.println("**************************************************************\n" );
-
-
-                    String data1 = diretorio.getName();
-                    String data2 = data1.replaceAll("__", ":");
-                    String data3 = data2.replaceAll("_", "/");
-                    //String data4 = data3.replace("T", "_");
-                    //String data5 = data4.replace("Z", "");
-/*
-                    String list_str_1[] = null; try { list_str_1 = data5.split("_"); } catch (Exception e) {}
-                    for( int j = 0; j < list_str_1.length; j++ ){
-                        System.out.println( "String - " + j + " - " + list_str_1[j] );
-                    }
-                    String nome_data_hora_mensagem = list_str_1[2]+"/"+list_str_1[1]+"/"+list_str_1[0]+" " +
-                            list_str_1[3]+":"+list_str_1[4]+":"+list_str_1[5];
-                    */
-
-                    String nome_email_destinatario = para_email_destinatario.trim().toUpperCase().replace("@", "_");
-                    String email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
-                    String arquivo_properties2 = de_email_remetente.trim().toUpperCase().replace("@", "_");
-                    String email_REMETENTE = arquivo_properties2.trim().toUpperCase().replace(".", "_");
-
-                    String remetente_e_destinatario = email_REMETENTE    + "-" + email_DESTINATARIO + "-";
-                    String destinatario_e_remetente = email_DESTINATARIO + "-" + email_REMETENTE + "-";
-
-                    System.out.println("\n**************************************************************" );
-                    System.out.println("arquivo.getName() - " + arquivo.getName());
-                    System.out.println("**************************************************************\n" );
-
-                    if ( arquivo.getName().equalsIgnoreCase( remetente_e_destinatario + ".html" ) ) {
-
-                        //mensagem2("      Você - " + nome_data_hora_mensagem, sb.toString(), true, false);
-                        mensagem_direita( sb.toString(),  " "+data3);
-                    }
-                    else if ( arquivo.getName().equalsIgnoreCase( destinatario_e_remetente + ".html" ) ) {
-
-                        //mensagem2( nome_data_hora_mensagem, sb.toString(), false, false );
-                        mensagem_esquerda( sb.toString(), " "+data3);
-                    }
-                }
-            }
-
-        } catch( Exception e ){ System.out.println( "Zero - Diretórios - Home - filtrarTipoArquivos( File diretório, File arquivo )" ); e.printStackTrace();}
-    }
-
-    public void criar_arquivo(String html, String email_remetente, String email_destinatario, String tipo, String nome_data) {
-        /*new Thread() {   @Override public void run() {*/ try {
-
-            String s = System.getProperty("file.separator");
-            File internalStorageDir = Activity.getFilesDir();
-
-            String nome_criar_pasta_mensagem = null;
-
-            //System.out.println( "ID = criar_pasta_deste_destinatario_no_remetente - " + id_criar_pasta_deste_destinatario_no_remetente );
-            ////////dd.MM.yyyy HH:mm:ss/////////////EEEE, d MMMM yyyy HH:mm:ss
-            Calendar calendar = Calendar.getInstance();
-            java.util.Date now = calendar.getTime();
-            java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
-
-            DateFormat dfmt = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-            try {
-                nome_criar_pasta_mensagem = dfmt.format(currentTimestamp);
-            } catch (Exception e) {
-            }
-            ////////dd.MM.yyyy HH:mm:ss/////////////EEEE, d MMMM yyyy HH:mm:ss
-
-            String data = nome_criar_pasta_mensagem.trim().toUpperCase().replace("/", "__");
-            String minuto = data.trim().toUpperCase().replace(":", "__");
-            String segundo = minuto.trim().toUpperCase().replace(".", "_");
-
-            String nome_email_destinatario = email_destinatario.trim().toUpperCase().replace("@", "_");
-            String email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
-            String arquivo_properties2 = email_remetente.trim().toUpperCase().replace("@", "_");
-            String email_REMETENTE = arquivo_properties2.trim().toUpperCase().replace(".", "_");
-            String remetente_e_destinatario = email_REMETENTE + "-" + email_DESTINATARIO + "-";
-            String destinatario_e_remetente = email_DESTINATARIO + "-" + email_REMETENTE + "-";
-
-            Arquivo_Ou_Pasta.criarPasta(internalStorageDir + s, "00_Externo");
-            if (new File(internalStorageDir + s + "00_Externo").exists() == true) {
-
-                System.out.println("00_Externo -- Existe --- " + internalStorageDir + s + "00_Externo");
-            }
-            Arquivo_Ou_Pasta.criarPasta(internalStorageDir + s + "00_Externo", "MENSAGENS_RECEBIDAS");
-            if (new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS").exists() == true) {
-
-                System.out.println("MENSAGENS_RECEBIDAS -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS");
-            }
-            Arquivo_Ou_Pasta.criarPasta(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS", email_REMETENTE);
-            if (new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE).exists() == true) {
-
-                System.out.println(email_REMETENTE + " -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE);
-            }
-            Arquivo_Ou_Pasta.criarPasta(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE, email_DESTINATARIO);
-            if (new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO).exists() == true) {
-
-                System.out.println(email_DESTINATARIO + " -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO);
-            }
-            Arquivo_Ou_Pasta.criarPasta(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO, "NAO_ENVIADO");
-            if (new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO").exists() == true) {
-
-                System.out.println("NAO_ENVIADO -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO");
-            }
-            Arquivo_Ou_Pasta.criarPasta(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO, "ENVIADO");
-            if (new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO").exists() == true) {
-
-                System.out.println("ENVIADO -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO");
-            }
-
-            if (tipo.equals("ENVIAR")){
-                Arquivo_Ou_Pasta.criarPasta(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO", segundo);
-                /*if (new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO" + s + segundo).exists() == true) {
-
-                    System.out.println("ENVIADO -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO" + s + segundo);
-                }*/
-
-                String destino = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO" + s + segundo; //minuto
-                String arquivoASerCriadoXX = destino + s + remetente_e_destinatario + ".html";
-                File file_x = Arquivo_Ou_Pasta.criar_Arquivo_Iso_Boo_Tipo_UTFISO_Ret_F(arquivoASerCriadoXX, html, "UTF-8");
-
-                System.out.println("File criado: " + file_x.getPath());
-
-                //criar_html_e_enviar( segundo, file_x, destino, remetente_e_destinatario );
-                _envio_da_mensagem(html, destino, arquivoASerCriadoXX, segundo);
-            }
-            else if (tipo.equals("RECEBIDO")){
-
-                String data2 = nome_data.trim().toUpperCase().replace("/", "__");
-                String minuto2 = data2.trim().toUpperCase().replace(":", "__");
-                String segundo2 = minuto2.trim().toUpperCase().replace(".", "_");
-
-                Arquivo_Ou_Pasta.criarPasta(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO", segundo2);
-                /*if (new File(internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO" + s + segundo).exists() == true) {
-
-                    System.out.println("ENVIADO -- Existe --- " + internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "NAO_ENVIADO" + s + segundo);
-                }*/
-
-                String destino = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO" + s + segundo2; //minuto
-                String arquivoASerCriadoXX = destino + s + destinatario_e_remetente + ".html";
-                File file_x = Arquivo_Ou_Pasta.criar_Arquivo_Iso_Boo_Tipo_UTFISO_Ret_F(arquivoASerCriadoXX, html, "UTF-8");
-            }
-
-        } catch( Exception e ){ e.printStackTrace(); } //} }.start();
-    }
 
     public void playSound() {
         MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.whatsapp001);
@@ -1347,248 +1011,75 @@ public class OO8_Conversa extends AppCompatActivity {
         Activity.startActivity(intent);
         Activity.finish();
     }
-}
 
 // AsyncTask<Parâmetros,Progresso,Resultado>
 // AsyncTask<String, Void, String>
-class EnviarMensagem extends AsyncTask<String, String, String> {
+class LerMensagem extends AsyncTask<String, String, Void> {
 
-    private OO8_Conversa OO8_Conversa23;
-    String msg_a_enviar = "";
+        String s = null;
+        String internalStorageDir = null;
+        Context HomeAndroid;
+        OO8_Conversa OO8_Conversa2;
 
-    String nome_destinatario = "";
-    String de_email_remetente = "";
-    String para_email_destinatario = "";
-    String pasta = "";
-    String file = "";
-    String segundo = "";
+        String email_remetenteX;
+        String email_destinatarioX;
+        int contadorX = 0;
+        boolean primeira_vez = false;
 
-    public EnviarMensagem(OO8_Conversa OO8_Conversa2, String msg_a_enviar2, String nome_destinatario2, String de_email_remetente2, String para_email_destinatario2, String pasta2, String file2, String segundo2) {
-        this.OO8_Conversa23 = OO8_Conversa2;
-        this.msg_a_enviar = msg_a_enviar2;
-        this.nome_destinatario = nome_destinatario2;
-        this.de_email_remetente = de_email_remetente2.toUpperCase();
-        this.para_email_destinatario = para_email_destinatario2.toUpperCase();
+        public LerMensagem(
+                OO8_Conversa OO8_Conversa3,
+                Context HomeAndroidX,
 
-        this.pasta = pasta2;
-        this.file = file2;
-        this.segundo = segundo2;
-        /*
-        System.out.println( "\n" +
-                "\nMensagem - " + msg_a_enviar + "\n" +
-                de_email_remetente + " - " + de_email_remetente + " - \n" +
-                para_email_destinatario + " - " + para_email_destinatario
-        );
-        */
-    }
+                String email_remetente,
+                String email_destinatario,
+                int contadorR,
+                boolean primeira_vez2) {
 
-    //É onde acontece o processamento
-    //Este método é executado em uma thread a parte,
-    //ou seja ele não pode atualizar a interface gráfica,
-    //por isso ele chama o método onProgressUpdate,
-    // o qual é executado pela
-    //UI thread.
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    @Override
-    protected String doInBackground(String... params) {
+            HomeAndroid = HomeAndroidX;
+            s = System.getProperty("file.separator");
+            internalStorageDir = HomeAndroidX.getFilesDir().getPath();
+            OO8_Conversa2 = OO8_Conversa3;
 
-        String jsonDeResposta;
+            email_remetenteX = email_remetente;
+            email_destinatarioX = email_destinatario;
+            contadorX = contadorR;
+            primeira_vez = primeira_vez2;
+        }
 
-            HttpURLConnection connection = null;
-            try {
-
-                ConnectivityManager manager = (ConnectivityManager) OO8_Conversa23.Activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo network = manager.getActiveNetworkInfo();
-
-                boolean isConnected = network != null && network.isConnected() && network.isAvailable();
-                String ip2 = network.getTypeName();
-                System.out.println( "\n" +
-                        "\nip2 " + ip2
-                );
-
-                String id_0_formulario = "1FAIpQLSe26aTcu7OC_OnfIiBk9bkoSsI_cps6EDoI71kX64fZNrW6Hw";
-                String id_1_formulario_email_de = "1897386233";
-                String id_2_formulario_email_para = "1845166634";
-                String id_3_sub_item_formulario_mensagem = "283884279";
-
-                String email_remetente = de_email_remetente;
-                String email_destinatario = para_email_destinatario;
-                //String sub_item_formulario_mensagem = msg_a_enviar;
-                String sub_item_formulario_mensagem = URLEncoder.encode(msg_a_enviar, "utf-8");
-
-                String GET_URL = "https://docs.google.com/forms/d/e/" + id_0_formulario + "/formResponse?"
-                        + "entry." + id_1_formulario_email_de + "=" + email_remetente
-                        + "&entry." + id_2_formulario_email_para + "=" + email_destinatario
-                        + "&entry." + id_3_sub_item_formulario_mensagem + "=" + sub_item_formulario_mensagem;
-
-                URL url = new URL(GET_URL);
-                URLConnection conn = url.openConnection();
-
-                InputStream is = url.openStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                /*
-                StringBuilder sb = new StringBuilder();
-
-                String linha = br.readLine();
-
-                while (linha != null) {
-
-                    //System.out.println(linha);
-                    sb.append(linha);
-                    linha = br.readLine();
-
-                }
-
-                jsonDeResposta = sb.toString();
-                */
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    connection.disconnect();
-                } catch (Exception e) {
-                }
-            }
-
-
-            //Notifica o Android de que ele precisa
-            //fazer atualizações na
-            //tela e chama o método onProgressUpdate
-            //para fazer a atualização da interface gráfica
-            //passando o valor do
-            //contador como parâmetro.
-            publishProgress(msg_a_enviar);
-
-            return msg_a_enviar;
-        //}while(true);
-    }
-    // É invocado para fazer uma atualização na
-    // interface gráfica
-    @Override
-    protected void onProgressUpdate(String... values) {
-        //OO8_Conversa23.mensagem_direita(values[0]);
-        //OO8_Conversa23.playSound();
-        try{
-
-            String s = System.getProperty("file.separator");
-            File internalStorageDir = this.OO8_Conversa23.Activity.getFilesDir();
-
-            File[] listaDosArquivos2 = new File( this.pasta ).listFiles();
-            if ( listaDosArquivos2 != null ) {
-
-                for (int j = 0; j < listaDosArquivos2.length; j++) {
-
-                    String nome_email_destinatario = this.para_email_destinatario.trim().toUpperCase().replace("@", "_");
-                    String email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
-                    String arquivo_properties2 = this.de_email_remetente.trim().toUpperCase().replace("@", "_");
-                    String email_REMETENTE = arquivo_properties2.trim().toUpperCase().replace(".", "_");
-
-                    Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO", segundo );
-                    String destino = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO" + s + segundo; //minuto
-                    String arquivoASerCriadoXX = destino + s + email_REMETENTE    + "-" + email_DESTINATARIO + "-" + ".html";
-                    File file_x = Arquivo_Ou_Pasta.criar_Arquivo_Iso_Boo_Tipo_UTFISO_Ret_F( arquivoASerCriadoXX, this.msg_a_enviar, "UTF-8" );
-/*
-                    Arquivo_Ou_Pasta.copiarArquivoNovoNome(listaDosArquivos2[j],
-                            internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + "ENVIADO",
-                            "eu" + ".html");
-                    Arquivo_Ou_Pasta.deletar(listaDosArquivos2[j]);*/
-                }
-            }
-
-            Arquivo_Ou_Pasta.deletar( new File( this.pasta ) );
-
-            //OO11_Notificacoes OO11_Notificacoes = new OO11_Notificacoes("Nova Mensagem de: "+this.nome_destinatario, this.msg_a_enviar,this.OO8_Conversa23.Activity);
-        }catch(Exception e ){}
-    }
-}
-
-// AsyncTask<Parâmetros,Progresso,Resultado>
-// AsyncTask<String, Void, String>
-class LerMensagem extends AsyncTask<String, String, Void>{
-
-    boolean executarUmaVez = false;
-
-    int proxima_mensagem_a_ler = 1;
-
-    private OO8_Conversa OO8_Conversa;
-    private String ip;
-
-    String nome_destinatario = "";
-    String de_email_remetente = "";
-    String para_email_destinatario = "";
-
-    public LerMensagem(OO8_Conversa OO8_Conversa2, boolean executarUmaVez2, String ip2, String nome_destinatario2, String de_email_remetente2, String para_email_destinatario2) {
-        this.OO8_Conversa = OO8_Conversa2;
-        this.executarUmaVez = executarUmaVez2;
-        this.ip = ip2;
-        this.nome_destinatario = nome_destinatario2;
-        this.de_email_remetente = de_email_remetente2.toUpperCase();
-        this.para_email_destinatario = para_email_destinatario2.toUpperCase();
-    }
-
-    //É onde acontece o processamento
-    //Este método é executado em uma thread a parte,
-    //ou seja ele não pode atualizar a interface gráfica,
-    //por isso ele chama o método onProgressUpdate,
-    // o qual é executado pela
-    //UI thread.
-    @Override
-    protected Void doInBackground(String... params) {
-        String endereco = params[0];
-        //do {
+        //É onde acontece o processamento
+        //Este método é executado em uma thread a parte,
+        //ou seja ele não pode atualizar a interface gráfica,
+        //por isso ele chama o método onProgressUpdate,
+        // o qual é executado pela
+        //UI thread.
+        @Override
+        protected Void doInBackground(String... params) {
+            String endereco = params[0];
+            //do {
 
             String jsonDeResposta = "";
 
-            HttpURLConnection connection = null;
+            //System.out.println( "\n\n Início Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+            //System.out.println( "internalStorageDir - " + internalStorageDir + " - contadorX - " + contadorX + " - primeira_vez - " + primeira_vez);
+            //System.out.println( "Fim Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
+
             try {
-
-                /*
-                ConnectivityManager manager = (ConnectivityManager) OO8_Conversa.Activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo network = manager.getActiveNetworkInfo();
-
-                boolean isConnected = network != null && network.isConnected() && network.isAvailable();
-                String ip2 = network.getTypeName();
-                */
-
-                String id_0_formulario = "1By3w9XL3XDO_Dzi5VomurGnqoMS-_zW552C4-B2SJKo";
-                String id_1_Espaco = "A:F";
-                String key = "AIzaSyBwiMCywJRFQHuuksWdhqwjOrR5mDaWJYs"; //AIzaSyBxe8Sl3WxpmhMenNBeMeBjKHlVjBahsr8
-                String GET_URL = "https://sheets.googleapis.com/v4/spreadsheets/" + id_0_formulario + "/values/" + id_1_Espaco + "?key=" + key;
-
-                URL url = new URL(GET_URL);
-                URLConnection conn = url.openConnection();
-
-                InputStream is = url.openStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-
-                StringBuilder sb = new StringBuilder();
-
-                String linha = br.readLine();
-
-                while (linha != null) {
-
-                    //System.out.println(linha);
-                    sb.append(linha);
-                    linha = br.readLine();
-
+                if( this.primeira_vez == false ) {
+                    Thread.sleep(2000);
                 }
-
-                jsonDeResposta = sb.toString();
-
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
-                //JOPM JOptionPaneMod = new JOPM( 2, "inicio(), \n"
-                //+ e.getMessage() + "\n", "Home" );
-            } finally {
-                try {
-                    connection.disconnect();
-                } catch (Exception e) {
-                }
             }
 
+//////// pegar_Endereco_Da_pasta_Da_Mensagem ////////////////////////////////////////////////////////////////////////////////////////////
+
+            pegar_Endereco_Da_pasta_Da_Mensagem(
+                    email_remetenteX,
+                    email_destinatarioX,
+                    contadorX
+            );
+
+//////// pegar_Endereco_Da_pasta_Da_Mensagem ////////////////////////////////////////////////////////////////////////////////////////////
 
             //Notifica o Android de que ele precisa
             //fazer atualizações na
@@ -1598,304 +1089,391 @@ class LerMensagem extends AsyncTask<String, String, Void>{
             //contador como parâmetro.
             publishProgress(jsonDeResposta);
 
-            try {
-                if( this.executarUmaVez == false ) {
-                    Thread.sleep(1000);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             return null;
-        //}while(true);
-    }
-    // É invocado para fazer uma atualização na
-    // interface gráfica
-    @Override
-    protected void onProgressUpdate(String... values) {
-        //OO8_Conversa.mensagem_esquerda(values[0]);
-        //System.out.println( values[0] );
-
-        if( this.executarUmaVez == true ) {
-
-            //pegar_proxima_mensagem_a_ler(values[0]);
-            System.out.println("OO8_Conversa.mostrar_mensagens_iniciais(this.de_email_remetente, this.para_email_destinatario);");
-            OO8_Conversa.mostrar_mensagens_iniciais(this.de_email_remetente, this.para_email_destinatario);
+            //}while(true);
         }
-        else {
-            pegar_proxima_mensagem_a_ler(values[0]);
-        }
-
-        OO8_Conversa._ler_da_mensagens(false);
-    }
-
-    private void pegar_proxima_mensagem_a_ler(String values) { try {
-
-        String s = System.getProperty("file.separator");
-        File internalStorageDir = OO8_Conversa.Activity.getFilesDir();
-
-        String arquivo_properties2 = de_email_remetente.trim().toUpperCase().replace("@", "_");
-        String email_REMETENTE = arquivo_properties2.trim().toUpperCase().replace(".", "_");
-
-        String nome_email_destinatario = para_email_destinatario.trim().toUpperCase().replace("@", "_");
-        String email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
-
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s, "00_Externo" );
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo", "LEITURAS_M" );
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "LEITURAS_M", email_REMETENTE );
-        Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "LEITURAS_M" + s + email_REMETENTE, email_DESTINATARIO );
-
-        String properties001 = internalStorageDir + s + "00_Externo" + s + "LEITURAS_M" + s + email_REMETENTE + s + email_DESTINATARIO + ".properties";
-        //System.out.println( properties001 );
-
-        File criar = new File( properties001 );
-        if ( !criar.exists() ) {
+        // É invocado para fazer uma atualização na
+        // interface gráfica
+        @Override
+        protected void onProgressUpdate(String... values) {
 
             try{
-                Properties properties_zero = new Properties();
-                properties_zero.put("ultimo", "1");
-                FileOutputStream out = new FileOutputStream( properties001 );
-                properties_zero.storeToXML(out, "updated", "UTF-8");
-                out.flush();
-                out.close();
-            } catch( Exception ee ){ }
+                /*
+                pegar_Endereco_Da_pasta_Da_Mensagem(
+                        email_remetenteX,
+                        email_destinatarioX,
+                        contadorX
+                );
+                */
+            } catch( Exception e ){}
 
-            proxima_mensagem_a_ler = 1;
-            mostrar_mensagem_parte_1( values );
-            //System.out.println( "if ( !criar.exists() ) {\n" + properties001 + "\n" );
-        }
-        else if ( criar.exists() ) {
+            try{
 
-            abrir_properties( values, properties001 );
-            //System.out.println( "File criar.exists()\n" + properties001 + "\n" );
+                OO8_Conversa2._ler_da_mensagens( contadorX, false );
+            } catch( Exception e ){}
         }
 
-    } catch( Exception e ){} }
+        public void pegar_Endereco_Da_pasta_Da_Mensagem(
+                String email_remetente,
+                String email_destinatario,
+                int contador) {
 
-    private void abrir_properties(String values, String properties001) {
+            //System.out.println( "\n\n pegar_Endereco_Da_pasta_Da_Mensagem - Início Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+            //System.out.println( "email_remetente - " + email_remetente + " - email_destinatario - " + email_destinatario + " - contador - " + contador);
+            //System.out.println( "pegar_Endereco_Da_pasta_Da_Mensagem - Fim Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
 
-        String numero_ultimo_lido = "";
+            String email_DESTINATARIO = "";
+            String email_REMETENTE = "";
 
-        Properties properties = new Properties();
-        FileInputStream in = null;
-        try{
-            in = new FileInputStream( properties001 );
-            properties.loadFromXML(in);
-            in.close();
+            List<String[]> lista_de_mensagens_nao_lidas = new ArrayList<String[]>();
+            try {
+                String nome_email_destinatario = email_destinatario.trim().toUpperCase().replace("@", "_");
+                email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
+                String arquivo_properties2 = email_remetente.trim().toUpperCase().replace("@", "_");
+                email_REMETENTE = arquivo_properties2.trim().toUpperCase().replace(".", "_");
 
-            for(Enumeration elms = properties.propertyNames(); elms.hasMoreElements();){
+                String destino = internalStorageDir +s+"00_Externo"+s+"MENSAGENS_RECEBIDAS"+ s + email_REMETENTE + s + email_DESTINATARIO;
+                //System.out.println( "\n\n pegar_Endereco_Da_pasta_Da_Mensagem - Início Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+                //System.out.println( "email_remetente - " + email_remetente );
+                //System.out.println( "email_destinatario - " + email_destinatario );
+                //System.out.println( "contador - " + contador );
+                //System.out.println( "internalStorageDir - " + internalStorageDir );
+                //System.out.println( "destino - " + destino );
+                //System.out.println( "pegar_Endereco_Da_pasta_Da_Mensagem - Fim Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
 
-                String prop = (String)elms.nextElement();
-                String value = properties.getProperty(prop);
+                File diretorio = new File( destino );
+                File[] lista_data_pasta_da_msg_recebida = diretorio.listFiles();
+                if ( lista_data_pasta_da_msg_recebida != null ) {
+                    /*
+                    System.out.println( "\n\n pegar_Endereco_Da_pasta_Da_Mensagem - Início Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+                    System.out.println( "email_remetente - " + email_remetente );
+                    System.out.println( "email_destinatario - " + email_destinatario );
+                    System.out.println( "contador - " + contador );
+                    System.out.println( "internalStorageDir - " + internalStorageDir );
+                    System.out.println( "destino - " + destino );
+                    System.out.println( "if ( lista_data_pasta_da_msg_recebida != null ) {" );
+                    System.out.println( "quantidade de arquivos - " + lista_data_pasta_da_msg_recebida.length );
+                    System.out.println( "pegar_Endereco_Da_pasta_Da_Mensagem - Fim Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
+                    */
+                    for (int j=0; j < lista_data_pasta_da_msg_recebida.length; j++) {
 
-                if( prop.equalsIgnoreCase("ultimo") ){
+                        if ( lista_data_pasta_da_msg_recebida[j].isDirectory()  ) {
 
-                    numero_ultimo_lido = value;
+                            // PARA NÃO REPETIR A INCLUSÃO DAS MESMAS MENSAGENS AO ABRIR
+                            if ( j >= contador ) {
+                                contador += 1;
+
+                                System.out.println( "\nif ( J >= contador ) { - " + "J - " + j + " - contador - " + contador );
+
+                                String nome_Da_pasta_Da_Mensagem_Data = lista_data_pasta_da_msg_recebida[j].getName().trim().toUpperCase();
+                                //System.out.println( "pasta_Data_Mensagem - " + nome_Da_pasta_Da_Mensagem_Data );
+                                /*
+                                System.out.println( "\n\n pegar_Endereco_Da_pasta_Da_Mensagem - Início Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+                                System.out.println( "email_remetente - " + email_remetente );
+                                System.out.println( "email_destinatario - " + email_destinatario );
+                                System.out.println( "contador - " + contador );
+                                System.out.println( "internalStorageDir - " + internalStorageDir );
+                                System.out.println( "destino - " + destino );
+                                System.out.println( "if ( lista_data_pasta_da_msg_recebida != null ) {" );
+                                System.out.println( "quantidade de arquivos - " + lista_data_pasta_da_msg_recebida.length );
+                                System.out.println( "Arquivo - " + j + " - " + lista_data_pasta_da_msg_recebida[j].getPath() );
+                                System.out.println( "pegar_Endereco_Da_pasta_Da_Mensagem - Fim Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
+                                */
+                                String endereco_Da_pasta_Da_Mensagem_Data = internalStorageDir + s+"00_Externo"+s+"MENSAGENS_RECEBIDAS"+s + email_REMETENTE + s + email_DESTINATARIO + s + lista_data_pasta_da_msg_recebida[j].getName().trim();
+
+                                File data_diretorio2 = new File( endereco_Da_pasta_Da_Mensagem_Data );
+                                File[] data_lista_pasta_Da_Mensagem = data_diretorio2.listFiles();
+                                if ( data_lista_pasta_Da_Mensagem != null ) {
+
+                                    for (int i=0; i < data_lista_pasta_Da_Mensagem.length; i++) {
+                                        /*
+                                        System.out.println( "\n\n pegar_Endereco_Da_pasta_Da_Mensagem - Início Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+                                        System.out.println( "email_remetente - " + email_remetente );
+                                        System.out.println( "email_destinatario - " + email_destinatario );
+                                        System.out.println( "contador - " + contador );
+                                        System.out.println( "internalStorageDir - " + internalStorageDir );
+                                        System.out.println( "destino - " + destino );
+                                        System.out.println( "if ( lista_data_pasta_da_msg_recebida != null ) {" );
+                                        System.out.println( "quantidade de arquivos - " + lista_data_pasta_da_msg_recebida.length );
+                                        System.out.println( "Pasta - " + j + " - " + lista_data_pasta_da_msg_recebida[j].getPath() );
+                                        System.out.println( "Arquivo - " + i + " - " + data_lista_pasta_Da_Mensagem[i].getPath() );
+                                        System.out.println( "pegar_Endereco_Da_pasta_Da_Mensagem - Fim Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
+                                        */
+                                        String subnome_Da_pasta_Da_Mensagem = data_lista_pasta_Da_Mensagem[i].getName().trim().toUpperCase();
+                                        String endereco_recebido_e_nao_lido = endereco_Da_pasta_Da_Mensagem_Data + s + subnome_Da_pasta_Da_Mensagem;
+
+                                        boolean continuar = false;
+
+                                        if ( subnome_Da_pasta_Da_Mensagem.equalsIgnoreCase("RECEBIDO_E_NAO_LIDO") ) {
+                                            continuar = true;
+                                        } else if ( subnome_Da_pasta_Da_Mensagem.equalsIgnoreCase("ENVIADO_ONLINE") ) {
+                                            if( primeira_vez == true ){
+
+                                                continuar = true;
+                                            }
+                                        }
+
+                                        if ( continuar == true ) {
+                                            String[] strArray = new String[3];
+                                            strArray[0] = endereco_recebido_e_nao_lido;
+                                            strArray[1] = nome_Da_pasta_Da_Mensagem_Data;
+                                            strArray[2] = endereco_Da_pasta_Da_Mensagem_Data;
+
+                                            lista_de_mensagens_nao_lidas.add( strArray );
+
+/////////////////////////////////////////////arquivos /////////////////////////////////////////////
+                                            File[] data_lista_arquivos_Da_Mensagem = data_lista_pasta_Da_Mensagem[i].listFiles();
+                                            for (int x = 0; x < data_lista_arquivos_Da_Mensagem.length; x++) {
+
+                                             /*
+                                             System.out.println( "\n\n pegar_Endereco_Da_pasta_Da_Mensagem - Início Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+                                             System.out.println( "email_remetente - " + email_remetente );
+                                             System.out.println( "email_destinatario - " + email_destinatario );
+                                             System.out.println( "contador - " + contador );
+                                             System.out.println( "internalStorageDir - " + internalStorageDir );
+                                             System.out.println( "destino - " + destino );
+                                             System.out.println( "if ( lista_data_pasta_da_msg_recebida != null ) {" );
+                                             System.out.println( "quantidade de arquivos - " + lista_data_pasta_da_msg_recebida.length );
+                                             System.out.println( "Pasta - " + j + " - " + lista_data_pasta_da_msg_recebida[j].getPath() );
+                                             System.out.println( "Subpasta - " + i + " - " + data_lista_pasta_Da_Mensagem[i].getPath() );
+                                             System.out.println( "Arquivo - " + x + " - " + data_lista_arquivos_Da_Mensagem[x].getPath() );
+                                             System.out.println( "pegar_Endereco_Da_pasta_Da_Mensagem - Fim Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
+                                             */
+                                                try{
+                                                    String str_para_extencao = new File( endereco_recebido_e_nao_lido ).getPath() + s + new File( data_lista_arquivos_Da_Mensagem[x].getName() ).getPath();
+                                                    String extencao_do_arquivo = str_para_extencao.substring( str_para_extencao.lastIndexOf('.') + 1 );
+                                                    if( extencao_do_arquivo.equalsIgnoreCase( "html" ) ){
+                                                        /*
+                                                        System.out.println( "HTML - extencao_do_arquivo - " + extencao_do_arquivo );
+                                                        System.out.println( "Arquivo - " + x + " - " + data_lista_arquivos_Da_Mensagem[x].getPath() );
+                                                        System.out.println( "HTML - extencao_do_arquivo - " + extencao_do_arquivo );
+                                                        */
+                                                    }
+                                                } catch( Exception e ){}
+                                            }
+
+                                        }
+                                    }
+                                }
+                                //}
+                            }
+                        }
+                    }
                 }
+            } catch( Exception e ){}
+
+            try{
+
+                mostrar_arquivo_html__iniciais_1(
+                        OO8_Conversa2,
+                        HomeAndroid,
+                        lista_de_mensagens_nao_lidas,
+                        email_remetenteX,
+                        email_destinatarioX,
+                        contador
+                );
+            } catch( Exception e ){}
+        }
+
+        private void mostrar_arquivo_html__iniciais_1(
+                OO8_Conversa OO8_Conversa2,
+                Context HomeAndroid,
+                List<String[]> lista_de_mensagens_nao_lidas,
+                String email_remetente,
+                String email_destinatario,
+                int contador){
+
+            try{
+
+                for (int j = 0; j < lista_de_mensagens_nao_lidas.size(); j++) {
+
+                    String endereco_recebido_e_nao_lido = lista_de_mensagens_nao_lidas.get(j)[0];
+                    String nome_Da_pasta_Da_Mensagem_Data = lista_de_mensagens_nao_lidas.get(j)[1];
+                    String endereco_Da_pasta_Da_Mensagem_Data = lista_de_mensagens_nao_lidas.get(j)[2];
+
+                    File[] listaDosArquivos = new File( endereco_recebido_e_nao_lido ).listFiles();
+
+                    try{
+                        for (int i=0; i < listaDosArquivos.length; i++) {
+
+                            String str_para_extencao = new File( endereco_recebido_e_nao_lido ).getPath() + s + new File( listaDosArquivos[i].getName() ).getPath();
+                            String extencao_do_arquivo = str_para_extencao.substring( str_para_extencao.lastIndexOf('.') + 1 );
+                            if( extencao_do_arquivo.equalsIgnoreCase( "html" ) ){
+
+                                filtrarTipoArquivos__iniciais_2( OO8_Conversa2, HomeAndroid, listaDosArquivos[i], lista_de_mensagens_nao_lidas.get(j)[1], email_remetente, email_destinatario );
+                            }
+                        }
+
+                    } catch( Exception e ){}
+                }
+
+            } catch( Exception e ){}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+            contadorX = contador;
+            /*
+            try{
+
+                OO8_Conversa2._ler_da_mensagens( contador, false );
+            } catch( Exception e ){}
+            */
+/////////////////////////////////////////////////////////////////////////////////////////////////
+        }
+
+        private void filtrarTipoArquivos__iniciais_2(
+                OO8_Conversa OO8_Conversa2,
+                Context HomeAndroid,
+                File file_recebido,
+                String nome_Da_pasta_Da_Mensagem,
+                String email_remetente,
+                String email_destinatario) {
+
+            try {
+
+///////////////////////////////////////////////////////////////////////////////
+                //Lendo arquivo
+                if ( file_recebido.isFile() == true ) {
+
+                    // abertura do arquivo
+                    BufferedReader bR = new BufferedReader(new InputStreamReader(
+                            new FileInputStream(file_recebido), "UTF-8"));
+                    StringBuilder sb = new StringBuilder();
+
+                    String linha;
+                    while ((linha = bR.readLine()) != null) {
+
+                        //System.out.println( linha );
+                        sb.append(linha);
+                        //String decodedUrl = java.net.URLDecoder.decode(linha, "UTF-8");
+                        //sb.append(decodedUrl);
+                    }
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+                    // codePointAt para String
+                    StringBuilder sb_final = new StringBuilder();
+                    String parte_01[] = sb.toString().trim().split("_");
+                    for (int i = 0; i < parte_01.length; i++) {
+
+                        int codePointAt = Integer.parseInt( parte_01[i] );
+                        // converting to char[] pair
+                        char[] charPair = Character.toChars(codePointAt);
+                        // and to String, containing the character we want
+                        String symbol = new String(charPair);
+
+                        sb_final.append(symbol);
+
+                        //Transformar unicode para utf
+                        if (Character.charCount(codePointAt) == 1) {
+
+                            System.out.println( "\n\n filtrarTipoArquivos__iniciais_2 - Início - Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+                            System.out.println( " String Completa - " + sb.toString() );
+                            System.out.println( " String parte_01[i] - " + parte_01[i] );
+                            System.out.println( " codePointAt - " + codePointAt );
+                            System.out.println( " char[] charPair - " + charPair );
+                            System.out.println( " Symbol - " + symbol );
+                            System.out.println( " filtrarTipoArquivos__iniciais_2 - Fim - Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
+                        } else {
+                            //return new String(Character.toChars(codePoint));
+                        }
+                    }
+////////////////////////////////////////////////////////////////////////////////
+
+                    //String mensagemSX = sb.toString().trim();
+                    String lineSeparator = System.getProperty("line.separator");
+                    String mensagemSX = sb_final.toString().trim().replaceAll("__@jm@quebra_linha@jm@__", lineSeparator );
+
+                    String datas[] = nome_Da_pasta_Da_Mensagem.trim().split("_");
+                    String nome_data_hora_mensagem = datas[2] + "/" + datas[1] + "/" + datas[0] + " " + datas[3] + ":" + datas[4] + ":" + datas[5];
+
+                    String nome_email_destinatario = email_destinatario.trim().toUpperCase().replace("@", "_");
+                    String email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
+                    String arquivo_properties2 = email_remetente.trim().toUpperCase().replace("@", "_");
+                    String email_REMETENTE = arquivo_properties2.trim().toUpperCase().replace(".", "_");
+
+                    String remetente_e_destinatario = email_REMETENTE + "-" + email_DESTINATARIO + "-";
+                    String destinatario_e_remetente = email_DESTINATARIO + "-" + email_REMETENTE + "-";
+
+                    /*
+                    System.out.println( "\n\n filtrarTipoArquivos__iniciais_2 - Início Turbo_Flyer_Auto_Leitura_Offline ***************************************************");
+                    System.out.println( "mensagemSX - " + mensagemSX );
+                    System.out.println( " filtrarTipoArquivos__iniciais_2 - Fim Turbo_Flyer_Auto_Leitura_Offline ***************************************************\n\n");
+                    */
+
+                    if (file_recebido.getName().equalsIgnoreCase(remetente_e_destinatario + ".HTML")) {
+
+                        //OO8_Conversa2.mensagem_direita( mensagemSX, nome_data_hora_mensagem);
+                        Mensagem_esquerda_direita Mensagem_esquerda_direita = new Mensagem_esquerda_direita(
+                                mensagemSX, nome_data_hora_mensagem, OO8_Conversa2, "direita"
+                        );
+                        Mensagem_esquerda_direita.execute("");
+                    } else if (file_recebido.getName().equalsIgnoreCase(destinatario_e_remetente + ".HTML")) {
+
+
+                        //OO8_Conversa2.mensagem_esquerda( mensagemSX, nome_data_hora_mensagem);
+                        Mensagem_esquerda_direita Mensagem_esquerda_direita = new Mensagem_esquerda_direita(
+                                mensagemSX, nome_data_hora_mensagem, OO8_Conversa2, "esquerda"
+                        );
+                        Mensagem_esquerda_direita.execute("");
+                    }
+                }
+
+            } catch (Exception e) {
+                System.out.println("Zero - Diretórios - Home - filtrarTipoArquivos( File diretório, File arquivo )");
             }
+        }
 
-            if( !numero_ultimo_lido.equals("") ) {
+    }
+}
 
-                try { atualizar_properties_ultima_linha_lida(false, de_email_remetente, para_email_destinatario); } catch( Exception e ){ }
 
-                //System.out.println( "proxima_mensagem_a_ler - "+proxima_mensagem_a_ler );
+// AsyncTask<Parâmetros,Progresso,Resultado>
+// AsyncTask<String, Void, String>
+class Mensagem_esquerda_direita extends AsyncTask<String, String, Void> {
 
-                mostrar_mensagem_parte_1( values );
-            }
+    String mensagemSX;
+    String nome_data_hora_mensagem;
+    OO8_Conversa OO8_Conversa2;
+    String posicao;
 
-        } catch( Exception e ){}
+    public Mensagem_esquerda_direita( String mensagemSX2, String nome_data_hora_mensagem2, OO8_Conversa OO8_Conversa3, String posicao2 ) {
+
+        mensagemSX = mensagemSX2;
+        nome_data_hora_mensagem = nome_data_hora_mensagem2;
+        OO8_Conversa2 = OO8_Conversa3;
+        posicao = posicao2;
     }
 
-    private void mostrar_mensagem_parte_1(String json) { try {
+    @Override
+    protected Void doInBackground(String... params) {
+        String jsonDeResposta = null;
 
-        String separacao_1[] = json.split("],");
-        for( int i = 1; i < separacao_1.length; i++ ){
+        try{
 
-            mostrar_mensagem_parte_2( separacao_1[i], i );
-            //System.out.println( separacao_1[i] );
-        }
+            //Thread.sleep( 30000 );
 
-    } catch( Exception e ){} }
+        } catch( Exception e ){}
 
-    private void mostrar_mensagem_parte_2( String json, int i_R ) { try {
-        //System.out.println( json );
+        publishProgress(jsonDeResposta);
 
-        String separacao_1[] = json.split(",");
-        //System.out.println( separacao_1[0] );
+        return null;
+    }
 
-        String data = separacao_1[0].replace("\"", "").replace("[", "");
-        //System.out.println( data );
-        String de_email = separacao_1[1].replace("\"", "").toUpperCase();
-        //System.out.println( de_email );
-        String para_email = separacao_1[2].replace("\"", "").toUpperCase();
-        //System.out.println( para_email );
-        //String mensagem = separacao_1[3].replaceAll("\"    ]  ]}", "\"");
-        //String mensagem1 = separacao_1[3].replace("\"", "");
-        String mensagem2 = separacao_1[3].replaceAll("]", "");
-        String mensagem3 = mensagem2.replace("}", "");
-
-        String str[] = null; try{ str = mensagem3.split("\""); } catch( Exception e ){}
-
-        /*
-        System.out.println( "\n" +
-                "\nMensagem - " + mensagem3 + "\n" +
-                de_email + " - " + de_email_remetente + " - \n" +
-                para_email + " - " + para_email_destinatario+ "\n"+
-                "\ni_R - " + i_R + "\n" +
-                "\nproxima_mensagem_a_ler - " + proxima_mensagem_a_ler + "\n"+
-                "\nstr - " + str + "\n"
-        );
-        */
-
-        if( str != null ){
-
-            String mensagem_a_mostrar = mensagem3.replaceAll("\"", "").trim();
-
-            //System.out.println("if( str != null ){ " + str );
-
-            if( de_email.trim().equalsIgnoreCase( de_email_remetente.trim() )  ){
-
-                /*
-                StringBuilder sb = new StringBuilder();
-                String strX[] = str[1].split( "__" );
-                for( int i = 0; i < strX.length; i++ ){
-                    int x = Integer.parseInt( strX[i] );
-                    if( x == 10 ){
-                        sb.append("<p>");
-                    }
-                    else{
-                        char c = (char) x;
-                        sb.append(c);
-                    }
-                }
-                */
-
-                //System.out.println("IF mensagem3 " + mensagem_a_mostrar );
-
-                if( i_R >= proxima_mensagem_a_ler ){
-
-                    try { atualizar_properties_ultima_linha_lida(true, de_email_remetente, para_email_destinatario); } catch( Exception e ){ }
-                    //OO8_Conversa.mensagem_direita( mensagem_a_mostrar, "" );
-                }
-                else{
-
-                    if( this.executarUmaVez == true ) {
-
-                        //OO8_Conversa.mensagem_direita( mensagem_a_mostrar, "");
-                    }
-                }
-            }
-            else if( de_email.trim().equalsIgnoreCase( para_email_destinatario.trim() )  ){
-
-                /*
-                StringBuilder sb = new StringBuilder();
-                String strX[] = str[1].split( "__" );
-                for( int i = 0; i < strX.length; i++ ){
-                    int x = Integer.parseInt( strX[i] );
-                    if( x == 10 ){
-                        sb.append("<p>");
-                    }
-                    else{
-                        char c = (char) x;
-                        sb.append(c);
-                    }
-                }
-                */
-
-                //System.out.println("ELSE IF mensagem3 " + mensagem_a_mostrar );
-
-                if( i_R >= proxima_mensagem_a_ler ){
-
-                    try { atualizar_properties_ultima_linha_lida(true, de_email_remetente, para_email_destinatario); } catch( Exception e ){ }
-                    OO8_Conversa.mensagem_esquerda( mensagem_a_mostrar, data );
-                    OO8_Conversa.playSound();
-                    OO8_Conversa.criar_arquivo( mensagem_a_mostrar, de_email_remetente, para_email_destinatario, "RECEBIDO", data);
-                }
-                else{
-
-                    if( executarUmaVez == true ) {
-
-                        //OO8_Conversa.mensagem_esquerda( mensagem_a_mostrar, "" );
-                    }
-                }
-            }
-        }
-    } catch( Exception e ){
-        //e.printStackTrace();
-    } }
-
-    String arquivoASerCriado = "";
-    private void atualizar_properties_ultima_linha_lida(boolean atualizar,
-        String email_remetente, String email_destinatario ){
-
-        String s = System.getProperty("file.separator");
-        File internalStorageDir = OO8_Conversa.Activity.getFilesDir();
+    @Override
+    protected void onProgressUpdate(String... jsonDeResposta2) {
+        //System.out.println( jsonDeResposta[0] );
 
         try {
 
-            String arquivo_properties = email_destinatario.trim().toUpperCase().replace("@", "_");
-            String email_DESTINATARIO = arquivo_properties.trim().toUpperCase().replace(".", "_");
-            Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s, "00_Externo" );
-            Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo", "LEITURAS_M" );
+            if( posicao.equals("direita") ){
 
-            String arquivo_properties2 = email_remetente.trim().toUpperCase().replace("@", "_");
-            String email_REMETENTE = arquivo_properties2.trim().toUpperCase().replace(".", "_");
-            Arquivo_Ou_Pasta.criarPasta( internalStorageDir  + s +  "00_Externo" + s + "LEITURAS_M", email_REMETENTE );
-            arquivoASerCriado = internalStorageDir  + s +  "00_Externo" + s + "LEITURAS_M" + s +  email_REMETENTE  + s +  email_DESTINATARIO;
+                OO8_Conversa2.mensagem_direita( mensagemSX, nome_data_hora_mensagem);
+            }
+            else{
 
-            Properties properties = new Properties();
-            FileInputStream in = new FileInputStream( arquivoASerCriado + ".properties" );
-            properties.loadFromXML(in);
-            in.close();
-
-            Arquivo_Ou_Pasta.deletar( new File( arquivoASerCriado + ".properties" ) );
-
-            Properties properties_zero = new Properties();
-            String value = "";
-            try{
-                for(Enumeration elms = properties.propertyNames(); elms.hasMoreElements();){
-
-                    if( atualizar == true ){
-                        String prop = (String)elms.nextElement();
-                        value = properties.getProperty(prop);
-                        int v = Integer.parseInt( value.trim() );
-
-                        int x = v+=1;
-                        int anterior = x;
-
-                        proxima_mensagem_a_ler = anterior;
-                        properties_zero.put("ultimo", String.valueOf( anterior ) );
-                        //System.out.println("true - atualizar_properties(boolean atualizar){ - prop: " + prop + " - value: " + anterior + " - proxima_mensagem_a_ler - " + proxima_mensagem_a_ler);
-                    }
-                    else{
-                        String prop = (String)elms.nextElement();
-                        value = properties.getProperty(prop);
-                        int v = Integer.parseInt( value.trim() );
-
-                        proxima_mensagem_a_ler = v;
-                        properties_zero.put("ultimo", String.valueOf( v ) );
-                        //System.out.println("false - atualizar_properties(boolean atualizar){ - prop: " + prop + " - value: " + v + " - proxima_mensagem_a_ler - " + proxima_mensagem_a_ler );
-                    }
-                }
-            } catch( Exception e ){
-                //System.out.println("for(Enumeration elms = properties.propertyNames(); elms.hasMoreElements();){");
-                e.printStackTrace();
+                OO8_Conversa2.mensagem_esquerda( mensagemSX, nome_data_hora_mensagem);
             }
 
-            FileOutputStream out = new FileOutputStream( arquivoASerCriado + ".properties" );
-            properties_zero.storeToXML(out, "updated", "UTF-8");
-            out.flush();
-            out.close();
-
-        } catch( Exception e ){
-            try{
-                Properties properties_zero = new Properties();
-                properties_zero.put("ultimo", "1");
-                FileOutputStream out = new FileOutputStream( arquivoASerCriado + ".properties" );
-                properties_zero.storeToXML(out, "updated", "UTF-8");
-                out.flush();
-                out.close();
-            } catch( Exception ee ){ }
-        } //} }.start();
+        } catch (Exception e) {}
     }
 }
