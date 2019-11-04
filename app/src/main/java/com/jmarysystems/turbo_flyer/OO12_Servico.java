@@ -1,6 +1,7 @@
 package com.jmarysystems.turbo_flyer;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
@@ -128,9 +129,15 @@ public class OO12_Servico extends Service {
                 //Turbo_Flyer_Auto_Leitura_Online
                 //Auto Auto = new Auto( this, nome, email );
                 //mostrar_mensagem_parte_1(jsonDeResposta);
+                /*
                 Turbo_Flyer_Auto_Leitura_Online Turbo_Flyer_Auto_Leitura_Online = new Turbo_Flyer_Auto_Leitura_Online(
                         contadorXXX333, this,this, nome, email
                 );
+                */
+                Leitura_Online_Background Leitura_Online_Background = new Leitura_Online_Background(
+                        contadorXXX333, this,this, nome, email
+                );
+                Leitura_Online_Background.execute("");
             }
 
         } catch (Exception e) {
@@ -189,6 +196,71 @@ class OO12_Time extends AsyncTask<String, String, Void> {
 
             OO12_Servico2.iniciar_servico( 0 );
 
+        } catch (Exception e) {}
+    }
+}
+
+
+
+
+// AsyncTask<Parâmetros,Progresso,Resultado>
+// AsyncTask<String, Void, String>
+class Leitura_Online_Background extends AsyncTask<String, String, Void> {
+
+    String s = System.getProperty("file.separator");
+    //String internalStorageDir = System.getProperty("user.dir");
+    String internalStorageDir = null;
+
+    OO12_Servico OO12_Servico3;
+    int contadorXXX333 = 0;
+
+    Context HomeAndroid;
+
+    String de_nome_remetente23 = "";
+    String de_email_remetente23 = "";
+
+    public Leitura_Online_Background(
+            int contadorXXX2,
+            OO12_Servico OO12_Servico2,
+            Context HomeAndroid2,
+            String de_nome_remetente,
+            String de_email_remetente ) {
+
+        internalStorageDir = HomeAndroid2.getFilesDir().getPath();
+
+        OO12_Servico3 = OO12_Servico2;
+        contadorXXX333 = contadorXXX2;
+
+        HomeAndroid = HomeAndroid2;
+        de_nome_remetente23 = de_nome_remetente;
+        de_email_remetente23 = de_email_remetente;
+    }
+
+    @Override
+    protected Void doInBackground(String... params) {
+        String jsonDeResposta = null;
+
+        //
+        Turbo_Flyer_Auto_Leitura_Online Turbo_Flyer_Auto_Leitura_Online = new Turbo_Flyer_Auto_Leitura_Online(
+                contadorXXX333,
+                OO12_Servico3,
+                HomeAndroid,
+                de_nome_remetente23,
+                de_email_remetente23
+        );
+
+        publishProgress(jsonDeResposta);
+
+        return null;
+    }
+
+    @Override
+    protected void onProgressUpdate(String... jsonDeResposta2) {
+        //System.out.println( jsonDeResposta[0] );
+
+        try {
+
+            //
         } catch (Exception e) {}
     }
 }
