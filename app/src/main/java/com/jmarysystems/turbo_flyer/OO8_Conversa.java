@@ -9,7 +9,6 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -83,12 +82,9 @@ public class OO8_Conversa extends AppCompatActivity {
         //mensagem_esquerda("mensagem_esquerda");
 
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
+        new Thread() {   @Override public void run() { try {
 
-                //Turbo_Flyer_Auto_Leitura_Offline
+            //Turbo_Flyer_Auto_Leitura_Offline
                 try{
                     String nome_email_destinatario = para_email_destinatario.trim().toUpperCase().replace("@", "_");
                     String email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
@@ -106,33 +102,37 @@ public class OO8_Conversa extends AppCompatActivity {
                 } catch (Exception e) {}
 
                 _ler_da_mensagens(0,true);
-            }
-        }, 1);
+
+        } catch( Exception e ){  } } }.start();
     }
 
     boolean estado_da_tela = true;
 
+    int contador_recebido = 0;
+    boolean executarUmaVez_recebido = false;
+    OO8_Conversa OO8_Conversa_recebido;
     public void _ler_da_mensagens(int contador, boolean executarUmaVez){
-        try{
+
+        contador_recebido = contador;
+        executarUmaVez_recebido = executarUmaVez;
+        OO8_Conversa_recebido = this;
+
+        new Thread() {   @Override public void run() { try {
 
             if( estado_da_tela == true ) {
 
                 String ip = "http://192.168.0.100:8000/";
 
                 LerMensagem LerMensagem = new LerMensagem(
-                        this,
+                        OO8_Conversa_recebido,
                         Activity,
                         de_email_remetente,
                         para_email_destinatario,
-                        contador, executarUmaVez);
+                        contador_recebido, executarUmaVez_recebido);
                 LerMensagem.execute(ip);
             }
 
-        } catch( Exception e ){
-            e.printStackTrace();
-            //JOPM JOptionPaneMod = new JOPM( 2, "inicio(), \n"
-            //+ e.getMessage() + "\n", "Home" );
-        }
+        } catch( Exception e ){  } } }.start();
     }
 
     public void _envio_da_mensagem(String msg_a_enviar){
