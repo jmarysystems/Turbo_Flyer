@@ -214,7 +214,8 @@ public class OO8_Conversa extends AppCompatActivity {
             public void onClick(View view) {
                 //abrir_Activity( OO1_Home.class, nome, email  );
                 estado_da_tela = false;
-                abrir_Activity(OO9_Abrir_Contatos.class, nome, de_email_remetente);
+                //abrir_Activity(OO9_Abrir_Contatos.class, nome, de_email_remetente);
+                abrir_Activity( OO1_Home.class, nome, de_email_remetente  );
             }
         });
         bt_voltar_Contato.setText("Voltar");
@@ -1196,9 +1197,9 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                 for (int j=count_recebido; j < pasta_do_remetente_destinatario.length; j++) {
 
                     if( primeira_vez == true ){
-                        System.out.println( "\nFor ( J >= contador ) { - " + "J - " + j + " - contador - " + contador );
+                        //System.out.println( "\nFor ( J >= contador ) { - " + "J - " + j + " - contador - " + contador );
 
-                        System.out.println( "\nprimeira_vez == true");
+                        //System.out.println( "\nprimeira_vez == true");
 
                         for (int r=0; r < pasta_do_remetente_destinatario.length; r++) {
                             //
@@ -1208,8 +1209,8 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                             String nome_Da_pasta_Da_Mensagem_Data = pasta_do_remetente_destinatario[r].getName().trim().toUpperCase();
                             if( !nome_Da_pasta_Da_Mensagem_Data.equals("MENSAGENS_TXT") ){
                             String endereco_Da_pasta_Da_Mensagem_Data = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + pasta_do_remetente_destinatario[r].getName().trim();
-                            System.out.println("\nnome_Da_pasta_Da_Mensagem_Data - " + nome_Da_pasta_Da_Mensagem_Data);
-                            System.out.println("\nendereco_Da_pasta_Da_Mensagem_Data - " + endereco_Da_pasta_Da_Mensagem_Data);
+                            //System.out.println("\nnome_Da_pasta_Da_Mensagem_Data - " + nome_Da_pasta_Da_Mensagem_Data);
+                            //System.out.println("\nendereco_Da_pasta_Da_Mensagem_Data - " + endereco_Da_pasta_Da_Mensagem_Data);
                             File data_diretorio2 = new File(endereco_Da_pasta_Da_Mensagem_Data);
                             File[] data_lista_pasta_Da_Mensagem = data_diretorio2.listFiles();
                             for (int i = 0; i < data_lista_pasta_Da_Mensagem.length; i++) {
@@ -1288,9 +1289,9 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                     }
                     else {
 
-                        System.out.println( "\nFor ( J >= contador ) { - " + "J - " + j + " - contador - " + contador );
+                        //System.out.println( "\nFor ( J >= contador ) { - " + "J - " + j + " - contador - " + contador );
 
-                        System.out.println( "\nprimeira_vez == false");
+                        //System.out.println( "\nprimeira_vez == false");
 
                         boolean umaVez = false;
 
@@ -1306,13 +1307,14 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                                         contadorX = contador;
                                     }
                                     String endereco_Da_pasta_Da_Mensagem_Data = internalStorageDir + s+"00_Externo"+s+"MENSAGENS_RECEBIDAS"+s + email_REMETENTE + s + email_DESTINATARIO + s + pasta_do_remetente_destinatario[r].getName().trim();
-                                    System.out.println( "\nnome_Da_pasta_Da_Mensagem_Data - " + nome_Da_pasta_Da_Mensagem_Data);
-                                    System.out.println( "\nendereco_Da_pasta_Da_Mensagem_Data - " + endereco_Da_pasta_Da_Mensagem_Data);
+                                    //System.out.println( "\nnome_Da_pasta_Da_Mensagem_Data - " + nome_Da_pasta_Da_Mensagem_Data);
+                                    //System.out.println( "\nendereco_Da_pasta_Da_Mensagem_Data - " + endereco_Da_pasta_Da_Mensagem_Data);
                                     File data_diretorio2 = new File( endereco_Da_pasta_Da_Mensagem_Data );
                                     File[] data_lista_pasta_Da_Mensagem = data_diretorio2.listFiles();
                                     for (int i=0; i < data_lista_pasta_Da_Mensagem.length; i++) {
 
                                         String subnome_Da_pasta_Da_Mensagem = data_lista_pasta_Da_Mensagem[i].getName().trim().toUpperCase();
+                                        //System.out.println( "\nsubnome_Da_pasta_Da_Mensagem - " + subnome_Da_pasta_Da_Mensagem);
                                         String endereco_recebido_e_nao_lido = endereco_Da_pasta_Da_Mensagem_Data + s + subnome_Da_pasta_Da_Mensagem;
                                         if ( !subnome_Da_pasta_Da_Mensagem.equals("ENVIADO") ) {
                                             if ( !subnome_Da_pasta_Da_Mensagem.equals("ENVIADO_ONLINE") ) {
@@ -1645,7 +1647,7 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                 }
 
             } catch (Exception e) {
-                System.out.println("Zero - Diretórios - Home - filtrarTipoArquivos( File diretório, File arquivo )");
+                //System.out.println("Zero - Diretórios - Home - filtrarTipoArquivos( File diretório, File arquivo )");
             }
         }
 
@@ -1679,7 +1681,7 @@ class LerMensagem extends AsyncTask<String, String, Void> {
                     if( linha.trim().equalsIgnoreCase(nome_Da_pasta_Da_Mensagem) ){
 
                         retorno = true;
-                        System.out.println( "\nVerificando arquivo: " + nome_Da_pasta_Da_Mensagem);
+                        //System.out.println( "\nVerificando arquivo: " + nome_Da_pasta_Da_Mensagem);
                         break;
                     }
                 }

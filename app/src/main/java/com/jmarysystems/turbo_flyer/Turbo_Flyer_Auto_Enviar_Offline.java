@@ -180,10 +180,18 @@ class Enviar_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
             jsonDeResposta = sb.toString();
             try{
 
-                System.out.println("\n*******************************************************************");
-                System.out.println("jsonDeResposta - " + jsonDeResposta);
-                System.out.println("*******************************************************************\n");
+                //System.out.println("\n*******************************************************************");
+                //System.out.println("jsonDeResposta - " + jsonDeResposta);
+                //System.out.println("*******************************************************************\n");
             } catch( Exception e ){}
+
+            salvar_arquivo_baixado_remetente_e_destinatario(
+                    nome_criar_pasta_mensagem,
+                    msg_a_enviar,
+                    para_email_destinatario,
+                    de_email_remetente
+            );
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {}
@@ -211,7 +219,7 @@ class Enviar_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
             jsonDeResposta = jsonDeResposta2[0];
         } catch (Exception e) {}
 
-        try{
+        /*try{
 
             salvar_arquivo_baixado(
                     nome_criar_pasta_mensagem,
@@ -221,22 +229,17 @@ class Enviar_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
                     para_email_destinatario
             );
 
-        } catch( Exception e ){}
+        } catch( Exception e ){}*/
     }
 
-    public void salvar_arquivo_baixado(
-            String nome_criar_pasta_mensagem,
-            String jsonDeResposta,
+
+    public void salvar_arquivo_baixado_remetente_e_destinatario(
+            String segundo,
             String msg_a_enviar2,
-            String email_remetente,
-            String email_destinatario) { /*new Thread() {   @Override public void run() {*/ try {
+            String email_destinatario,
+            String email_remetente) { /*new Thread() {   @Override public void run() {*/ try {
 
         try{
-
-            String data = nome_criar_pasta_mensagem.trim().toUpperCase().replace("-", "_");
-            String minuto = data.trim().toUpperCase().replace(":", "_");
-            String nada = minuto.trim().toUpperCase().replace(" ", "_");
-            String segundo = nada.trim().toUpperCase().replace(".", "_");
 
             String nome_email_destinatario = email_destinatario.trim().toUpperCase().replace("@", "_");
             String email_DESTINATARIO = nome_email_destinatario.trim().toUpperCase().replace(".", "_");
@@ -245,42 +248,36 @@ class Enviar_Mensagens_Auto2 extends AsyncTask<String, String, Void> {
             String remetente_e_destinatario = email_REMETENTE + "-" + email_DESTINATARIO + "-";
             String destinatario_e_remetente = email_DESTINATARIO + "-" + email_REMETENTE + "-";
 
-            Arquivo_Ou_Pasta.criarPasta( internalStorageDir, "00_Externo");
-            Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo", "MENSAGENS_RECEBIDAS");
-            Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS", email_REMETENTE);
-            Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE, email_DESTINATARIO);
-            Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO, segundo);
+            String destino = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + segundo + s + "ENVIADO_ONLINE"; //ENVIADO_ONLINE
+            String arquivoASerCriadoXX = destino + s + remetente_e_destinatario + ".html";
 
-            if( jsonDeResposta != null ){
+            if( new File( arquivoASerCriadoXX ).exists() == false ){
+
+                Arquivo_Ou_Pasta.criarPasta( internalStorageDir, "00_Externo");
+                Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo", "MENSAGENS_RECEBIDAS");
+                Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS", email_REMETENTE);
+                Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE, email_DESTINATARIO);
+                Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO, segundo);
+                Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + segundo, "ENVIADO_ONLINE"); //ENVIADO_ONLINE
+
                 try{
-
-                    Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + segundo, "ENVIADO");
 
                     //Mensagem Enviada
-                    String destino = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + segundo + s + "ENVIADO";
-                    String arquivoASerCriadoXX = destino + s + remetente_e_destinatario + ".html";
                     File file_x = Arquivo_Ou_Pasta.criar_Arquivo_Iso_Boo_Tipo_UTFISO_Ret_F(arquivoASerCriadoXX, msg_a_enviar2, "UTF-8");
 
-                } catch( Exception e ){}
+                    System.out.println("\n*******************************************************************");
+                    System.out.println("segundo - " + segundo);
+                    System.out.println("msg_a_enviar2 - " + msg_a_enviar2);
+                    System.out.println("email_destinatario - " + email_destinatario);
+                    System.out.println("email_remetente - " + email_remetente);
+                    System.out.println("file_x - " + file_x.getPath());
+                    System.out.println("*******************************************************************\n");
+
+                } catch( Exception e ){e.printStackTrace();}
+
             }
-            else{
-                try{
-
-                    Arquivo_Ou_Pasta.criarPasta( internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + segundo, "NAO_ENVIADO");
-
-                    //Mensagem Não Enviada
-                    String destino = internalStorageDir + s + "00_Externo" + s + "MENSAGENS_RECEBIDAS" + s + email_REMETENTE + s + email_DESTINATARIO + s + segundo + s + "NAO_ENVIADO";
-                    String arquivoASerCriadoXX = destino + s + remetente_e_destinatario + ".html";
-                    File file_x = Arquivo_Ou_Pasta.criar_Arquivo_Iso_Boo_Tipo_UTFISO_Ret_F(arquivoASerCriadoXX, msg_a_enviar2, "UTF-8");
-
-                } catch( Exception e ){}
-
-                //System.out.println("\n**NULL*****************************************************************");
-                //System.out.println("jsonDeResposta = " + "NULL");
-                //System.out.println("**NULL*****************************************************************\n");
-            }
-        } catch( Exception e ){}
-
+        } catch( Exception e ){e.printStackTrace();}
     } catch( Exception e ){ } /*} }.start();*/ }
+
 
 }
